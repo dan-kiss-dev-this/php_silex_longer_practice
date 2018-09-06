@@ -8,12 +8,11 @@
 
     $app = new Silex\Application();
 
-    $app->get("/", function() {
-        // $test_task = new Task("Learn PHP");
-        // $another_test_task = new Task("Learn Drupal.");
-        // $third_task = new Task("Visit France.");
-        //
-        // $list_of_tasks = array($test_task, $another_test_task, $third_task);
+    $app->register(new Silex\Provider\TwigServiceProvider(), array(
+        'twig.path' => __DIR__.'/../views'
+    ));
+
+    $app->get("/", function() use ($app) {
         $output = '';
         $all_tasks =Task::getAll();
 
@@ -27,12 +26,6 @@
         foreach ($all_tasks as $task) {
             $output = $output . "<p>". $task->getDescription() . "</p>";
         }
-        // foreach (Task::getAll() as $task) {
-        //     $output = $output . "<p>". $task->getDescription() . "</p>";
-        // }
-        // foreach ($list_of_tasks as $task) {
-        //     $output = $output . "<p>" . $task->getDescription() . "</p>";
-        // }
 
         $output .= "
             <form action='/tasks' method='post'>
@@ -49,7 +42,8 @@
             </form>
           ";
 
-        return $output;
+        // return $output;
+        return $app['twig']->render('tasks.php', array('tasks' => Task::getAll()));
     });
 
     $app->post("/tasks", function() {
